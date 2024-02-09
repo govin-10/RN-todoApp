@@ -9,10 +9,14 @@ import {
 import React, {useEffect, useState} from 'react';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import DeleteIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import EditIcon from 'react-native-vector-icons/AntDesign';
 
 const TaskScreen = () => {
   const [todoText, setTodoText] = useState('');
   const [arrayData, setArrayData] = useState([]);
+  const [editItem, setEditItem] = useState(false);
+  const [updateItem, setUpdateItem] = useState('');
 
   const docId = auth().currentUser.uid;
 
@@ -49,10 +53,68 @@ const TaskScreen = () => {
     setTodoText('');
   };
 
+  const handleDelete = async item => {
+    await firestore()
+      .collection('activities')
+      .doc(docId)
+      .update({
+        task: firestore.FieldValue.arrayRemove(item),
+      });
+
+    await fetchData();
+  };
+
+  const handleEdit = async item => {
+    setEditItem(true);
+    const currentValue = item;
+    setTodoText(currentValue);
+    setUpdateItem(currentValue);
+    console.warn('currentValue', currentValue);
+  };
+
+  const handleUpdate = async item => {
+    //console.warn('task to update', updateItem);
+
+    const snapshot = await firestore()
+      .collection('activities')
+      .doc(docId)
+      .get();
+
+    if (!snapshot.exists) {
+      return;
+    }
+
+    const tasks = snapshot.data().task;
+    const index = tasks.indexOf(updateItem);
+    console.warn('index', index);
+    const updatedTasks = [...tasks];
+    updatedTasks[index] = todoText;
+
+    await firestore().collection('activities').doc(docId).update({
+      task: updatedTasks,
+    });
+
+    await fetchData();
+    setTodoText('');
+    setEditItem(false);
+  };
+
   const renderListItem = ({item}) => {
     return (
       <View>
         <Text>{item}</Text>
+        <DeleteIcon
+          name="delete"
+          size={20}
+          color="red"
+          onPress={() => handleDelete(item)}
+        />
+        <EditIcon
+          name="edit"
+          size={20}
+          color="blue"
+          onPress={() => handleEdit(item)}
+        />
       </View>
     );
   };
@@ -66,7 +128,10 @@ const TaskScreen = () => {
           value={todoText}
           onChangeText={text => setTodoText(text)}
         />
-        <Button title="Add Todo" onPress={handleAddTodo} />
+        <Button
+          title={editItem ? 'Update' : 'Add TODO'}
+          onPress={editItem ? handleUpdate : handleAddTodo}
+        />
       </View>
       <View>
         <FlatList
