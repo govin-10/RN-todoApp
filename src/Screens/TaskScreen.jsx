@@ -2,16 +2,18 @@ import {
   View,
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   StyleSheet,
   FlatList,
+  SafeAreaView,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import DeleteIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import EditIcon from 'react-native-vector-icons/AntDesign';
-
+import CheckIcon from 'react-native-vector-icons/FontAwesome';
+import {ScrollView} from 'react-native-gesture-handler';
 const TaskScreen = () => {
   const [todoText, setTodoText] = useState('');
   const [arrayData, setArrayData] = useState([]);
@@ -30,9 +32,9 @@ const TaskScreen = () => {
       .doc(docId)
       .get()
       .then(documentSnapshot => {
-        console.warn('User exists: ', documentSnapshot.exists);
+        //console.warn('User exists: ', documentSnapshot.exists);
         if (documentSnapshot.exists) {
-          console.warn('User data: ', documentSnapshot.data());
+          //console.warn('User data: ', documentSnapshot.data());
           const taskData = documentSnapshot.data().task;
           setArrayData(taskData);
         } else {
@@ -69,12 +71,9 @@ const TaskScreen = () => {
     const currentValue = item;
     setTodoText(currentValue);
     setUpdateItem(currentValue);
-    console.warn('currentValue', currentValue);
   };
 
   const handleUpdate = async item => {
-    //console.warn('task to update', updateItem);
-
     const snapshot = await firestore()
       .collection('activities')
       .doc(docId)
@@ -86,7 +85,7 @@ const TaskScreen = () => {
 
     const tasks = snapshot.data().task;
     const index = tasks.indexOf(updateItem);
-    console.warn('index', index);
+
     const updatedTasks = [...tasks];
     updatedTasks[index] = todoText;
 
@@ -101,46 +100,58 @@ const TaskScreen = () => {
 
   const renderListItem = ({item}) => {
     return (
-      <View>
-        <Text>{item}</Text>
-        <DeleteIcon
-          name="delete"
-          size={20}
-          color="red"
-          onPress={() => handleDelete(item)}
-        />
-        <EditIcon
-          name="edit"
-          size={20}
-          color="blue"
-          onPress={() => handleEdit(item)}
-        />
+      <View style={styles.taskItems}>
+        <Text style={styles.taskName}>{item}</Text>
+        <View style={styles.iconBox}>
+          <EditIcon
+            name="edit"
+            size={25}
+            color={'black'}
+            onPress={() => handleEdit(item)}
+          />
+          <DeleteIcon
+            name="delete"
+            size={25}
+            color="red"
+            onPress={() => handleDelete(item)}
+          />
+        </View>
       </View>
     );
   };
 
   return (
-    <View>
-      <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your todo task"
-          value={todoText}
-          onChangeText={text => setTodoText(text)}
-        />
-        <Button
-          title={editItem ? 'Update' : 'Add TODO'}
-          onPress={editItem ? handleUpdate : handleAddTodo}
-        />
-      </View>
-      <View>
+    <SafeAreaView>
+      <ScrollView>
+        <View style={styles.container}>
+          <TextInput
+            style={styles.inputBox}
+            placeholder="Enter your todo task"
+            value={todoText}
+            onChangeText={text => setTodoText(text)}
+          />
+          <TouchableOpacity
+            style={styles.addItemButton}
+            onPress={editItem ? handleUpdate : handleAddTodo}>
+            <Text
+              style={{
+                color: 'white',
+                textTransform: 'uppercase',
+                fontWeight: 'bold',
+                textAlign: 'center',
+              }}>
+              {editItem ? 'Update' : 'Add TODO'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         <FlatList
           data={arrayData}
           renderItem={renderListItem}
           keyExtractor={(item, index) => index.toString()}
         />
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -150,11 +161,33 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
   },
-  input: {
-    height: 40,
-    borderColor: 'gray',
+  inputBox: {
+    borderRadius: 5,
     borderWidth: 1,
+    borderColor: '#d3d3d3',
+    padding: 10,
     marginBottom: 10,
-    paddingLeft: 8,
+  },
+  addItemButton: {
+    backgroundColor: '#007bff', // Customize the color as needed
+    padding: 15,
+    borderRadius: 10,
+  },
+  taskItems: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+
+    marginBottom: 5,
+    borderRadius: 10,
+  },
+  taskName: {
+    fontSize: 20,
+  },
+  iconBox: {
+    flexDirection: 'row',
+    gap: 5,
+    alignSelf: 'center',
   },
 });

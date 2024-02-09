@@ -79,11 +79,17 @@ const Signup = ({navigation}) => {
       />
 
       {/* Signup Button */}
-      <Button
-        title="Sign Up"
-        onPress={() => handleSignup()}
-        buttonStyle={styles.signupButton}
-      />
+      <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
+        <Text
+          style={{
+            color: 'white',
+            textTransform: 'uppercase',
+            fontWeight: 'bold',
+            textAlign: 'center',
+          }}>
+          SIGN UP
+        </Text>
+      </TouchableOpacity>
 
       {/* Additional links or text (e.g., Already have an account?) */}
       <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -114,8 +120,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   signupButton: {
-    backgroundColor: '#28a745', // Customize the color as needed
-    marginTop: 20,
+    backgroundColor: '#007bff', // Customize the color as needed
+    padding: 15,
+    borderRadius: 10,
   },
   haveAccount: {
     textAlign: 'center',
