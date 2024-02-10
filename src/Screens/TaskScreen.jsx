@@ -6,6 +6,7 @@ import {
   StyleSheet,
   FlatList,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import auth from '@react-native-firebase/auth';
@@ -19,7 +20,7 @@ const TaskScreen = () => {
   const [arrayData, setArrayData] = useState([]);
   const [editItem, setEditItem] = useState(false);
   const [updateItem, setUpdateItem] = useState('');
-
+  const [loading, setLoading] = useState(false);
   const docId = auth().currentUser.uid;
 
   useEffect(() => {
@@ -27,20 +28,28 @@ const TaskScreen = () => {
   }, []);
 
   const fetchData = async () => {
-    await firestore()
-      .collection('activities')
-      .doc(docId)
-      .get()
-      .then(documentSnapshot => {
-        //console.warn('User exists: ', documentSnapshot.exists);
-        if (documentSnapshot.exists) {
-          //console.warn('User data: ', documentSnapshot.data());
-          const taskData = documentSnapshot.data().task;
-          setArrayData(taskData);
-        } else {
-          return [];
-        }
-      });
+    setLoading(true);
+
+    try {
+      await firestore()
+        .collection('activities')
+        .doc(docId)
+        .get()
+        .then(documentSnapshot => {
+          //console.warn('User exists: ', documentSnapshot.exists);
+          if (documentSnapshot.exists) {
+            //console.warn('User data: ', documentSnapshot.data());
+            const taskData = documentSnapshot.data().task;
+            setArrayData(taskData);
+          } else {
+            return [];
+          }
+        });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddTodo = async () => {
@@ -56,13 +65,17 @@ const TaskScreen = () => {
   };
 
   const handleDelete = async item => {
+    setLoading(true);
+    {
+      loading ? <ActivityIndicator size="large" color="#0000ff" /> : null;
+    }
     await firestore()
       .collection('activities')
       .doc(docId)
       .update({
         task: firestore.FieldValue.arrayRemove(item),
       });
-
+    setLoading(false);
     await fetchData();
   };
 
@@ -108,12 +121,14 @@ const TaskScreen = () => {
             size={25}
             color={'black'}
             onPress={() => handleEdit(item)}
+            style={{alignSelf: 'center'}}
           />
           <DeleteIcon
             name="delete"
-            size={25}
-            color="red"
+            size={30}
+            color="black"
             onPress={() => handleDelete(item)}
+            style={{alignSelf: 'center'}}
           />
         </View>
       </View>
@@ -121,37 +136,45 @@ const TaskScreen = () => {
   };
 
   return (
-    <SafeAreaView>
-      <ScrollView>
-        <View style={styles.container}>
-          <TextInput
-            style={styles.inputBox}
-            placeholder="Enter your todo task"
-            value={todoText}
-            onChangeText={text => setTodoText(text)}
-          />
-          <TouchableOpacity
-            style={styles.addItemButton}
-            onPress={editItem ? handleUpdate : handleAddTodo}>
-            <Text
-              style={{
-                color: 'white',
-                textTransform: 'uppercase',
-                fontWeight: 'bold',
-                textAlign: 'center',
-              }}>
-              {editItem ? 'Update' : 'Add TODO'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <FlatList
-          data={arrayData}
-          renderItem={renderListItem}
-          keyExtractor={(item, index) => index.toString()}
+    <View>
+      <View style={styles.container}>
+        <TextInput
+          style={styles.inputBox}
+          placeholder="Enter your todo task"
+          value={todoText}
+          onChangeText={text => setTodoText(text)}
         />
-      </ScrollView>
-    </SafeAreaView>
+        <TouchableOpacity
+          style={styles.addItemButton}
+          onPress={editItem ? handleUpdate : handleAddTodo}>
+          <Text
+            style={{
+              color: 'white',
+              textTransform: 'uppercase',
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}>
+            {editItem ? 'Update' : 'Add TODO'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View>
+        {loading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : (
+          <View>
+            <FlatList
+              nestedScrollEnabled={true}
+              data={arrayData}
+              renderItem={renderListItem}
+              keyExtractor={(item, index) => index.toString()}
+              style={styles.flatLists}
+            />
+          </View>
+        )}
+      </View>
+    </View>
   );
 };
 
@@ -177,17 +200,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 15,
-
     marginBottom: 5,
     borderRadius: 10,
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
   },
   taskName: {
     fontSize: 20,
+    padding: 10,
   },
   iconBox: {
     flexDirection: 'row',
-    gap: 5,
-    alignSelf: 'center',
+    gap: 15,
+    alignSelf: 'stretch',
+    padding: 10,
+  },
+  flatLists: {
+    backgroundColor: '#d3d3d3',
+    paddingBottom: 10,
   },
 });
