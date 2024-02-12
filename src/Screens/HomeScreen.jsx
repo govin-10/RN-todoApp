@@ -29,31 +29,20 @@ const HomeScreen = () => {
             height: 60,
             elevation: 0,
           },
-          tabBarActiveBackgroundColor: 'gray',
+          tabBarActiveBackgroundColor: '#146C94',
           tabBarIcon: (focused, color, size) => {
             focused = focused.focused;
             let iconName;
             size = 25;
             let routerName = route.name;
-            color = focused ? 'black' : 'gray';
+            color = focused ? '#EEF5FF' : 'gray';
             if (routerName === taskPageName) {
               iconName = focused ? 'clipboard-list' : 'clipboard-check';
             } else if (route.name === profilePageName) {
               iconName = focused ? 'user' : 'user';
             }
 
-            return (
-              <PencilIcon
-                name={iconName}
-                size={size}
-                color={color}
-                style={
-                  focused
-                    ? {backgroundColor: 'gray'}
-                    : {backgroundColor: 'white'}
-                }
-              />
-            );
+            return <PencilIcon name={iconName} size={size} color={color} />;
           },
         })}>
         <Tab.Screen name="TaskScreen" component={TaskScreen} />

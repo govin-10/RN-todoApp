@@ -120,13 +120,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   signupButton: {
-    backgroundColor: '#007bff', // Customize the color as needed
+    backgroundColor: '#176B87', // Customize the color as needed
     padding: 15,
     borderRadius: 10,
   },
   haveAccount: {
     textAlign: 'center',
     marginTop: 10,
+    padding: 20,
     color: '#007bff', // Customize the color as needed
   },
 });

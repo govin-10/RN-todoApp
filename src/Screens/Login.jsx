@@ -64,10 +64,13 @@ const Login = ({navigation}) => {
       </TouchableOpacity>
 
       {/* Additional links or text (e.g., Forgot Password?) */}
-      <TouchableOpacity style={{padding: 10, marginTop: 50}}>
+      <TouchableOpacity style={{padding: 20, marginTop: 50}}>
         <Text
           style={styles.signUp}
           onPress={() => {
+            handleSignUp({navigation});
+          }}
+          onLongPress={() => {
             handleSignUp({navigation});
           }}>
           New to ToDo?? Signup here!!
@@ -91,7 +94,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loginButton: {
-    backgroundColor: '#007bff', // Customize the color as needed
+    backgroundColor: '#176B87', // Customize the color as needed
     padding: 15,
     borderRadius: 10,
   },

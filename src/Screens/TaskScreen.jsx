@@ -41,8 +41,6 @@ const TaskScreen = () => {
             //console.warn('User data: ', documentSnapshot.data());
             const taskData = documentSnapshot.data().task;
             setArrayData(taskData);
-          } else {
-            return [];
           }
         });
     } catch (error) {
@@ -119,16 +117,14 @@ const TaskScreen = () => {
           <EditIcon
             name="edit"
             size={25}
-            color={'black'}
+            color={'#192655'}
             onPress={() => handleEdit(item)}
-            style={{alignSelf: 'center'}}
           />
           <DeleteIcon
             name="delete"
-            size={30}
+            size={25}
             color="black"
             onPress={() => handleDelete(item)}
-            style={{alignSelf: 'center'}}
           />
         </View>
       </View>
@@ -162,6 +158,13 @@ const TaskScreen = () => {
       <View>
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
+        ) : arrayData.length === 0 ? (
+          <View style={styles.emptyMessageBox}>
+            <Text style={styles.emptyMessageTitle}>Empty Task?</Text>
+            <Text style={styles.emptyMessage}>
+              No worries, just Add a new task above and you're good to go!!
+            </Text>
+          </View>
         ) : (
           <View>
             <FlatList
@@ -192,7 +195,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   addItemButton: {
-    backgroundColor: '#007bff', // Customize the color as needed
+    backgroundColor: '#176B87', // Customize the color as needed
     padding: 15,
     borderRadius: 10,
   },
@@ -212,11 +215,26 @@ const styles = StyleSheet.create({
   iconBox: {
     flexDirection: 'row',
     gap: 15,
-    alignSelf: 'stretch',
+    alignItems: 'center',
     padding: 10,
   },
   flatLists: {
-    backgroundColor: '#d3d3d3',
-    paddingBottom: 10,
+    backgroundColor: '#C9D7DD',
+  },
+  emptyMessageBox: {
+    marginTop: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 30,
+  },
+  emptyMessageTitle: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  emptyMessage: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
